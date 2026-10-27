@@ -1,0 +1,26 @@
+DATA401 A4 WRITTEN REPORT - AI USE DECLARATION
+
+Report title: When Do Assault and Theft Victimisations Occur?
+Author: Shaun D'souza
+AI tool used: ChatGPT (OpenAI, GPT-6)
+
+I used ChatGPT as a supporting tool while preparing this assignment in the following areas:
+
+1. Code troubleshooting and data preparation
+   I used prompts to help troubleshoot R code issues and error messages, and to obtain suggestions for cleaning, transforming, and organising the data.
+
+2. Code structure and documentation
+   I used ChatGPT to help improve code indentation, readability, organisation, and meaningful comments explaining the purpose of code blocks.
+
+3. Data visualisation
+   I used ChatGPT for assistance with producing and refining ggplot2 bar charts, line charts, and heatmaps, including adjustments to figure sizing, colours, axes, labels, and layout.
+
+4. Automated validation and reproducibility checks
+   I used ChatGPT to help develop automated R checks to verify data totals, percentages, chart summaries, weekend-night calculations, and reproducibility of the analysis.
+
+5. Language and presentation
+   I used ChatGPT to help review grammar, punctuation, clarity, and presentation of the written report.
+
+I reviewed and tested the code and outputs, checked the numerical results against the analysis, and take responsibility for the final report, its interpretations, and the submitted work.
+
+This declaration describes the AI assistance used in preparing this assignment.

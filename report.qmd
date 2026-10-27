@@ -1,0 +1,165 @@
+---
+title: "When Do Assault and Theft Victimisations Occur?"
+subtitle: "A Day-of-Week and Hourly Comparison of Auckland and Wellington City, 2023–2025"
+author: "Shaun D’souza"
+format:
+  pdf:
+    papersize: a4
+    fontsize: 11pt
+    geometry: margin=2.2cm
+    fig-pos: "htbp"
+    tbl-pos: "htbp"
+execute:
+  echo: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+source("analysis.R", local = TRUE)
+```
+
+# Introduction
+
+Understanding when crime occurs can help local authorities identify periods of increased demand for community safety services and inform decisions about resource allocation. Patterns may vary by offence type and location, making it useful to examine both the day of the week and time of day rather than relying solely on total crime counts.
+
+This report examines recorded assault and theft victimisations in Auckland and Wellington City between 2023 and 2025, using data published by New Zealand Police (n.d.). These two locations provide an opportunity to compare temporal patterns across different urban areas. The analysis focuses on the relative distribution of victimisations within each location and offence type, rather than comparing overall crime rates, which may be influenced by population size and other factors.
+
+The report is intended for local government community safety analysts who may use these findings to identify periods warranting further investigation.
+
+Research question: How do the day-of-week and time-of-day patterns of recorded assault and theft victimisations differ between Auckland and Wellington City during 2023–2025?
+
+# Methods
+
+## Data
+
+Data were obtained from the New Zealand Police Victimisation Time and Place dataset (New Zealand Police, n.d.). The analysis was restricted to recorded assault and theft victimisations in Auckland and Wellington City between 2023 and 2025.
+
+Variables included territorial authority, offence division, year, occurrence day, occurrence hour (00:00–23:00), and victimisation count. The source data are aggregated: each row may represent multiple victimisations, so all summaries use the victimisation count rather than the number of rows.
+
+Records with unknown occurrence days or hours were retained in the dataset but excluded from analyses requiring the missing information. The proportions of victimisations with unknown timing were calculated separately for each location and offence type to assess data coverage.
+
+## Analysis
+
+Descriptive statistics were used to compare temporal patterns between the two locations and offence types. Victimisation counts were summed by day of the week and occurrence hour, then converted into percentages within each location and offence group. This allowed comparisons of relative timing patterns without relying on raw counts, which differ substantially between Auckland and Wellington City.
+
+Grouped bar charts were used to compare day-of-week distributions, while line charts illustrated hourly patterns. A heatmap was used to examine the combined distribution of victimisations across days and hours.
+
+Weekend-night periods were defined as Friday and Saturday from 22:00 to 05:59 the following morning. The proportion of victimisations occurring during these periods was calculated using records with both a known day and hour.
+
+To assess missing-time sensitivity, lower and upper weekend-night shares were calculated by assigning all victimisations with incomplete timing outside or inside the weekend-night window, respectively. These are logical bounds, not confidence intervals. Data processing and visualisation were performed using R (R Core Team, 2026), with the tidyverse collection of packages. The analytical workflow followed principles of data transformation and visualisation described by Wickham et al. (2023).
+
+# Results
+
+## Data coverage
+
+```{r}
+#| label: tbl-coverage
+#| tbl-cap: "Recorded victimisations and missing timing information, 2023–2025."
+
+report_summary %>%
+  transmute(
+    Location = city,
+    Offence = offence,
+    Victimisations = scales::comma(total),
+    `Unknown day (%)` = sprintf("%.1f", unknown_day_pct),
+    `Unknown hour (%)` = sprintf("%.1f", unknown_hour_pct)
+  ) %>%
+  knitr::kable(
+    booktabs = TRUE,
+    align = c("l", "l", "r", "r", "r")
+  )
+```
+
+Unknown occurrence hours were more common for theft than assault:
+25.8% versus 5.3% in Auckland, and 33.5% versus 6.7% in Wellington City.
+Timing comparisons therefore describe records with the relevant timing
+information available. Records with unknown times may follow different
+patterns.
+
+## Day-of-week patterns
+
+```{r}
+#| label: fig-weekday
+#| fig-cap: "Day-of-week distributions among victimisations with a known occurrence day."
+#| fig-width: 7
+#| fig-height: 4.3
+
+day_plot
+```
+
+Saturday accounted for the highest assault share in Auckland (16.7%) and Wellington City (19.5%), followed by Sunday (15.6% and 18.8%). Theft was more evenly distributed, peaking on Saturday in Auckland (15.5%) and Friday in Wellington City (15.5%). Weekend concentration was more pronounced for assault, especially in Wellington City.
+
+## Time-of-day patterns
+
+```{r}
+#| label: fig-hourly
+#| fig-cap: "Hourly distributions among victimisations with a known occurrence hour."
+#| fig-width: 7
+#| fig-height: 4.3
+
+hour_plot
+```
+
+Afternoon hours accounted for the largest shares of both offences. Auckland assault and theft both peaked at 15:00 (8.1% and 8.4%). Wellington City assault peaked at 15:00 (5.8%), whereas theft peaked at 16:00 (9.2%). The assault hourly peak was less pronounced in Wellington City than in Auckland.
+
+## Combined day-and-hour patterns
+
+```{r}
+#| label: fig-heatmap
+#| fig-cap: "Distribution of recorded victimisations by day of week and occurrence hour, excluding records with unknown timing."
+#| fig-width: 7
+#| fig-height: 4.5
+
+timing_heatmap
+```
+
+The heatmap reveals patterns hidden by the separate day and hour summaries. Auckland assault peaked on Friday at 15:00 (1.29% of records with complete timing), while Wellington City assault peaked on Sunday at 01:00 (1.89%) and 02:00 (1.87%). Theft peaked on Saturday afternoon in both cities: 15:00 in Auckland (1.36%) and 16:00 in Wellington City (1.51%).
+
+## Weekend-night patterns
+
+Weekend nights (Friday and Saturday 22:00–05:59 the following morning) accounted for 20.4% of assaults with complete timing in Wellington City versus 10.2% in Auckland. The corresponding theft shares were 4.7% and 3.6%.
+
+```{r}
+#| label: tbl-weekend-night
+#| tbl-cap: "Recorded victimisations occurring during weekend nights, 2023–2025."
+
+weekend_night_summary %>%
+  transmute(
+    City = city,
+    Offence = offence,
+    `Known timing` = scales::comma(both_known_total),
+    `Weekend night` = scales::comma(weekend_night_total),
+    `Share (%)` = sprintf("%.1f", weekend_night_pct)
+  ) %>%
+  knitr::kable(
+    format = "latex",
+    booktabs = TRUE,
+    align = c("l", "l", "r", "r", "r")
+  )
+```
+Wellington City had a higher weekend-night assault share in each year: 19.5%–21.0% compared with 9.6%–11.0% in Auckland.
+
+# Discussion
+
+The findings answer the research question by identifying broadly similar afternoon peaks for theft but different assault patterns. Assault was relatively concentrated on weekend nights in Wellington City, especially early Sunday, while Auckland’s largest individual day-hour shares occurred in the afternoon.
+
+The weekend-night assault share in Wellington City was approximately twice Auckland’s, and the direction of this difference was consistent in all three years. This is a descriptive comparison of recorded victimisations, not evidence of a causal mechanism.
+
+Incomplete timing is a key limitation, particularly for theft. Under extreme allocations of missing records, assault weekend-night shares were bounded by 9.6%–14.9% in Auckland and 19.0%–25.7% in Wellington City. The non-overlapping bounds preserve the descriptive ordering. Theft bounds were much wider and overlapped, limiting conclusions about theft timing.
+
+The analysis describes recorded victimisations rather than the underlying risk of experiencing crime. Differences in population size, reporting practices and other local factors may influence the results. Furthermore, the observed patterns do not establish why offences occurred at particular times.
+
+**Recommendation.** 
+
+Wellington City community safety analysts should examine the 22:00 Saturday–05:59 Sunday period alongside event schedules, pedestrian activity and existing safety-service coverage. This could inform whether a targeted prevention pilot merits evaluation; the present data alone cannot establish effectiveness.
+
+# References
+
+New Zealand Police. (n.d.). *Police data and statistics*. https://www.police.govt.nz/about-us/publications-statistics/dataandstatistics/policedatanz
+
+R Core Team. (2026). *R: A language and environment for statistical computing*. R Foundation for Statistical Computing. https://www.R-project.org/
+
+Wickham, H., Çetinkaya-Rundel, M., & Grolemund, G. (2023). *R for data science* (2nd ed.). O'Reilly Media. https://r4ds.hadley.nz/
+
